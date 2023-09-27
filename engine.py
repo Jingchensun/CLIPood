@@ -161,6 +161,7 @@ def train(train_iter: ForeverDataIterator, model, moving_avg_model: GeneralMovin
         data_time.update(data_time_step)
 
         # compute output
+        x = x.type(model.conv1.weight.dtype)
         f = model(x)
         f = f / f.norm(dim=-1, keepdim=True)
         f -= args.lam * text_features[labels]
@@ -223,6 +224,8 @@ def validate(val_loader, model, text_features, args, device, shift=0) -> float:
             target = target.to(device) - shift
 
             # compute output
+            # print("image.type before:", images.dtype) #torch.float32
+            images = images.type(model.conv1.weight.dtype)
             image_features = model(images)
             image_features /= image_features.norm(dim=-1, keepdim=True)
 

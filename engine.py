@@ -74,13 +74,18 @@ def get_dataset(args):
             converter_dassl.get_dassl_datasets(dataset_name=args.data, root=args.root, n_shot=args.n_shot)
         print("base_class_names:", base_class_names)
         print("open_class_names:", open_class_names)
-        print(args.data)
+        print("train_dataset nums:", len(train_dataset))
+        print("val_dataset nums:", len(val_dataset))
+        print("test_dataset nums:", len(test_dataset))
+        print("open_dataset nums:", len(open_dataset))
         data_write = {}
         data_write["dataset"]= args.data
-        data_write["total_lenght"]= len(base_class_names) + len(open_class_names)
-        data_write["base_length"]= len(base_class_names)
+        data_write["total_class"]= len(base_class_names) + len(open_class_names)
+        data_write["base_train_val_test_imgs_nums"]= [len(train_dataset), len(val_dataset), len(test_dataset)]
+        data_write["new_imgs_nums"]= len(open_dataset)
+        data_write["base_class"]= len(base_class_names)
         data_write["base_class_names"]= base_class_names
-        data_write["new_length"]= len(open_class_names)
+        data_write["new_class"]= len(open_class_names)
         data_write["new_class_names"]= open_class_names
 
         with open('./dataset-analysis.json', 'a',encoding='utf-8') as file:

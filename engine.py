@@ -225,7 +225,7 @@ def validate(val_loader, model, text_features, args, device, shift=0) -> float:
 
             # compute output
             # print("image.type before:", images.dtype) #torch.float32
-            images = images.type(model.conv1.weight.dtype)
+            images = images.type(torch.float16)
             image_features = model(images)
             image_features /= image_features.norm(dim=-1, keepdim=True)
 

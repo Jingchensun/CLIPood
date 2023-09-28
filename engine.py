@@ -9,6 +9,7 @@ import clip
 
 import converter_dassl, converter_domainbed
 from utils import accuracy, AverageMeter, ProgressMeter, TensorboardWriter, ForeverDataIterator
+import json
 
 
 class GeneralMovingAverage(object):
@@ -71,6 +72,23 @@ def get_dataset(args):
         # load dassl data
         train_dataset, val_dataset, test_dataset, open_dataset, base_class_names, open_class_names, template = \
             converter_dassl.get_dassl_datasets(dataset_name=args.data, root=args.root, n_shot=args.n_shot)
+        print("base_class_names:", base_class_names)
+        print("open_class_names:", open_class_names)
+        print(args.data)
+        data_write = {}
+        data_write["dataset"]= args.data
+        data_write["total_lenght"]= len(base_class_names) + len(open_class_names)
+        data_write["base_length"]= len(base_class_names)
+        data_write["base_class_names"]= base_class_names
+        data_write["new_length"]= len(open_class_names)
+        data_write["new_class_names"]= open_class_names
+
+        with open('./dataset-analysis.json', 'a',encoding='utf-8') as file:
+            json.dump(data_write, file, indent=1, ensure_ascii=False)
+        file.close()
+
+
+
         train_class_names = base_class_names
         train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.workers, drop_last=True)
         train_iter = ForeverDataIterator(train_loader)

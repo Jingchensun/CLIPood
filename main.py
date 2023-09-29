@@ -43,7 +43,7 @@ def main(args: argparse.Namespace):
     print("=> using pre-trained model '{}'".format(args.arch))
     classifier = clip_model.visual
     classifier = classifier.to(device)
-    clip.model.convert_weights(classifier)
+    # clip.model.convert_weights(classifier) #convert model weight to fp16
     classifier.eval()
     
     # obtain text features

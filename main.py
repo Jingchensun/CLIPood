@@ -37,69 +37,69 @@ def main(args: argparse.Namespace):
     clip_model, _ = clip.load(args.arch, device)
     
     train_iter, val_loader, test_loaders, train_class_names, template = get_dataset(args)
-    print("train_class_names:", len(train_class_names))
+    print("train_iter", train_iter)
 
-    # # create model
-    # print("=> using pre-trained model '{}'".format(args.arch))
-    # classifier = clip_model.visual
-    # classifier = classifier.to(device)
-    # clip.model.convert_weights(classifier)
-    # classifier.eval()
+    # create model
+    print("=> using pre-trained model '{}'".format(args.arch))
+    classifier = clip_model.visual
+    classifier = classifier.to(device)
+    clip.model.convert_weights(classifier)
+    classifier.eval()
     
-    # # obtain text features
-    # train_text_features = get_text_features(clip_model, template, train_class_names, device)
-    # for test_loader in test_loaders:
-    #     test_loader["text_features"] = get_text_features(clip_model, template, test_loader["class_names"], device)
+    # obtain text features
+    train_text_features = get_text_features(clip_model, template, train_class_names, device)
+    for test_loader in test_loaders:
+        test_loader["text_features"] = get_text_features(clip_model, template, test_loader["class_names"], device)
 
-    # # define beta moving average
-    # beta_dist = sp.stats.beta(args.beta, args.beta)
-    # total_iter = args.epochs * args.iters_per_epoch
-    # weight_func = lambda it: beta_dist.pdf((it + 0.5) / (total_iter + 1))
+    # define beta moving average
+    beta_dist = sp.stats.beta(args.beta, args.beta)
+    total_iter = args.epochs * args.iters_per_epoch
+    weight_func = lambda it: beta_dist.pdf((it + 0.5) / (total_iter + 1))
 
-    # bma_classifier = GeneralMovingAverage(classifier, weight_func)
+    bma_classifier = GeneralMovingAverage(classifier, weight_func)
 
-    # if args.phase == "train":
-    #     # define optimizer and lr scheduler
-    #     optimizer = AdamW(classifier.parameters(), lr=args.lr, weight_decay=args.wd)
-    #     lr_scheduler = CosineAnnealingLR(optimizer, args.epochs * args.iters_per_epoch)
+    if args.phase == "train":
+        # define optimizer and lr scheduler
+        optimizer = AdamW(classifier.parameters(), lr=args.lr, weight_decay=args.wd)
+        lr_scheduler = CosineAnnealingLR(optimizer, args.epochs * args.iters_per_epoch)
         
-    #     # define temperature for training
-    #     if args.temperature is None:
-    #         args.temperature = clip_model.logit_scale.exp().item()
+        # define temperature for training
+        if args.temperature is None:
+            args.temperature = clip_model.logit_scale.exp().item()
 
-    #     # define tensorboard writer
-    #     writer = TensorboardWriter(args.log, flush_freq=20)
+        # define tensorboard writer
+        writer = TensorboardWriter(args.log, flush_freq=20)
 
-    #     # evaluate zero-shot performance
-    #     best_val_acc1 = evaluate_all(classifier, val_loader, train_text_features, test_loaders, args, writer, device)
+        # evaluate zero-shot performance
+        best_val_acc1 = evaluate_all(classifier, val_loader, train_text_features, test_loaders, args, writer, device)
 
-    #     # start training
-    #     for epoch in range(args.epochs):
-    #         print("Learning rate: {:.4e}".format(lr_scheduler.get_last_lr()[0]))
+        # start training
+        for epoch in range(args.epochs):
+            print("Learning rate: {:.4e}".format(lr_scheduler.get_last_lr()[0]))
             
-    #         # train for one epoch
-    #         train(train_iter, classifier, bma_classifier, train_text_features, optimizer, lr_scheduler, epoch, args, writer, device)
+            # train for one epoch
+            train(train_iter, classifier, bma_classifier, train_text_features, optimizer, lr_scheduler, epoch, args, writer, device)
 
-    #         # evaluate all
-    #         val_acc1 = evaluate_all(classifier, val_loader, train_text_features, test_loaders, args, writer, device)
+            # evaluate all
+            val_acc1 = evaluate_all(classifier, val_loader, train_text_features, test_loaders, args, writer, device)
 
-    #         # remember best acc@1 and save checkpoint
-    #         torch.save(classifier.state_dict(), logger.get_checkpoint_path('latest'))
-    #         if val_acc1 > best_val_acc1:
-    #             shutil.copy(logger.get_checkpoint_path('latest'), logger.get_checkpoint_path('best'))
-    #             best_val_acc1 = val_acc1
+            # remember best acc@1 and save checkpoint
+            torch.save(classifier.state_dict(), logger.get_checkpoint_path('latest'))
+            if val_acc1 > best_val_acc1:
+                shutil.copy(logger.get_checkpoint_path('latest'), logger.get_checkpoint_path('best'))
+                best_val_acc1 = val_acc1
 
-    #     print("Training completed.")
+        print("Training completed.")
 
-    # classifier.load_state_dict(torch.load(logger.get_checkpoint_path('best')))
-    # print("Evaluate best model:")
-    # evaluate_all(classifier, val_loader, train_text_features, test_loaders, args, writer, device)
+    classifier.load_state_dict(torch.load(logger.get_checkpoint_path('best')))
+    print("Evaluate best model:")
+    evaluate_all(classifier, val_loader, train_text_features, test_loaders, args, writer, device)
 
-    # torch.save(bma_classifier.state_dict(), logger.get_checkpoint_path('bma'))
-    # print("Evaluate BMA model:")
-    # evaluate_all(bma_classifier, val_loader, train_text_features, test_loaders, args, writer, device)
+    torch.save(bma_classifier.state_dict(), logger.get_checkpoint_path('bma'))
+    print("Evaluate BMA model:")
+    evaluate_all(bma_classifier, val_loader, train_text_features, test_loaders, args, writer, device)
     
-    # logger.close()
+    logger.close()
 
 
 if __name__ == '__main__':

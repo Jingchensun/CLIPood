@@ -71,7 +71,7 @@ def get_dataset(args):
     elif args.task == "open_class":
         # load dassl data
         train_dataset, val_dataset, test_dataset, open_dataset, base_class_names, open_class_names, template = \
-            converter_dassl.get_dassl_datasets(dataset_name=args.data, root=args.root, n_shot=args.n_shot)
+            converter_dassl.get_dassl_datasets(dataset_name=args.data, root=args.root, n_shot=args.n_shot, seed=args.seed)
         # print("base_class_names:", base_class_names)
         # print("open_class_names:", open_class_names)
         # print("train_dataset nums:", len(train_dataset))
@@ -259,8 +259,8 @@ def validate(val_loader, model, text_features, args, device, shift=0) -> float:
             batch_time.update(time.time() - end)
             end = time.time()
 
-            if i % args.print_freq == 0:
-                progress.display(i)
+            # if i % args.print_freq == 0:
+            #     progress.display(i)
 
         print(' * Acc@1 {top1.avg:.3f}'.format(top1=top1))
     

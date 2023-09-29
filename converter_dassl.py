@@ -70,18 +70,18 @@ class DasslDataset(Dataset):
         return self._classnames
 
 
-def get_raw_dassl_dataset(dataset_name, root, n_shot, subsample="all"):
+def get_raw_dassl_dataset(dataset_name, root, n_shot, subsample="all", seed=0):
     cfg = get_cfg_default()
     cfg.DATASET.NAME = dataset_name
     cfg.DATASET.ROOT = root
     cfg.DATASET.NUM_SHOTS = n_shot
     cfg.DATASET.SUBSAMPLE_CLASSES = subsample
-    cfg.SEED = 0
+    cfg.SEED = seed
     dassl_dataset = build_dataset(cfg)
     return dassl_dataset
 
 
-def get_dassl_datasets(dataset_name, root, n_shot=0):
+def get_dassl_datasets(dataset_name, root, n_shot=0, seed=0):
     train_transform = transforms.Compose([
         transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
         transforms.RandomHorizontalFlip(),
@@ -94,8 +94,8 @@ def get_dassl_datasets(dataset_name, root, n_shot=0):
         transforms.ToTensor(),
         transforms.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711)),
     ])
-    raw_base_dataset = get_raw_dassl_dataset(dataset_name, root, n_shot, "base")
-    raw_open_dataset = get_raw_dassl_dataset(dataset_name, root, n_shot, "new")
+    raw_base_dataset = get_raw_dassl_dataset(dataset_name, root, n_shot, "base", seed)
+    raw_open_dataset = get_raw_dassl_dataset(dataset_name, root, n_shot, "new", seed)
     template = CUSTOM_TEMPLATES[dataset_name]
     train_dataset = DasslDataset(raw_base_dataset, "train", train_transform)
     val_dataset = DasslDataset(raw_base_dataset, "val", val_transform)

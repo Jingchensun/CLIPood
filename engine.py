@@ -175,6 +175,7 @@ def train(train_iter: ForeverDataIterator, model, moving_avg_model: GeneralMovin
         else:
             x, labels = next(train_iter)
         x, labels = x.to(device), labels.to(device)
+        print("label:", labels)
 
         # measure data loading time
         data_time_step = time.time() - end

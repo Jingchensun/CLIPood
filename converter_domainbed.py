@@ -19,7 +19,9 @@ def get_domainbed_datasets(dataset_name, root, targets, holdout=0.2, open_ratio=
     assert dataset_name in vars(dbdatasets)
     hparams = {"data_augmentation": True}
     datasets = vars(dbdatasets)[dataset_name](root, targets, hparams)
+    print("datasetsdatasetsdatasetsdatasets:", datasets[0], datasets[1], datasets[2],datasets[3]) #len = 4
     class_names = datasets[0].classes
+    print("class_names:", class_names)
     if open_ratio > 0:
         # Sample subclasses
         keys = list(range(len(class_names)))
@@ -51,6 +53,7 @@ def get_domainbed_datasets(dataset_name, root, targets, holdout=0.2, open_ratio=
         train_datasets = [d for (i, d) in enumerate(in_splits) if i not in targets]
         val_datasets = [d for (i, d) in enumerate(out_splits) if i not in targets]
         test_datasets = [d for (i, d) in enumerate(out_splits) if i in targets]
+        print("test_datasets", test_datasets)
         return train_datasets, val_datasets, test_datasets, class_names
 
 def get_forever_iter(datasets, batch_size, num_workers):

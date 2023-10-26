@@ -160,7 +160,7 @@ def train(train_iter: ForeverDataIterator, model, moving_avg_model: GeneralMovin
         [batch_time, data_time, losses, cls_accs],
         prefix="Epoch: [{}]".format(epoch))
 
-    # Freeze all Norm Layers
+    # Freeze all Norm Layersg
     model.eval()
 
     end = time.time()
@@ -175,7 +175,7 @@ def train(train_iter: ForeverDataIterator, model, moving_avg_model: GeneralMovin
         else:
             x, labels = next(train_iter)
         x, labels = x.to(device), labels.to(device)
-        print("label:", labels)
+        # print("label:", labels)
 
         # measure data loading time
         data_time_step = time.time() - end
@@ -188,7 +188,7 @@ def train(train_iter: ForeverDataIterator, model, moving_avg_model: GeneralMovin
         f -= args.lam * text_features[labels]
         y = f @ text_features.T
         y = args.temperature * y
-
+        # print("y:", y.size()) #torch.Size([36, 7]) for PACS
         loss = F.cross_entropy(y, labels)
 
         cls_acc = accuracy(y, labels)[0]

@@ -15,7 +15,7 @@ from utils import CompleteLogger, TensorboardWriter
 from engine import GeneralMovingAverage, get_dataset, get_text_features, train, evaluate_all
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
 
 def main(args: argparse.Namespace):
